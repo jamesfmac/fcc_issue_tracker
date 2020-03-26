@@ -4,7 +4,6 @@ const cors = require("cors");
 const { PORT } = require("./config");
 const projectsController = require("./controllers/projectsController");
 
-
 const app = express();
 
 //Express configuration
@@ -32,17 +31,6 @@ app.listen(app.get("port"), () => {
     `✓ App is running on port ${app.get("port")} in ${app.get("env")} mode`
   );
   console.log("  Press CTRL-C to stop\n");
-
-  if (app.get("env") === "test") {
-    console.log("running tests...");
-
-    try {
-      runner.run();
-    } catch (error) {
-      console.log("Tests are not valid:");
-      console.log(error);
-    }
-  }
 });
 
 module.exports = app; //for testing

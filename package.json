@@ -1,11 +1,15 @@
 {
   "name": "issue-tracker",
   "version": "1.0.0",
-  "description": "",
+  "description": "Free Code Camp issue tracker project",
+  "repository": "asdf",
   "main": "index.js",
   "scripts": {
     "start": "nodemon -r dotenv/config src/index.js",
-    "test": "nyc ./node_modules/mocha/bin/mocha src/tests -u tdd --exit"
+    "test": "nyc ./node_modules/mocha/bin/mocha src/tests -u tdd --exit",
+    "migration": "knex migrate:latest",
+    "seed": "knex seed:run",
+    "rollback": "knex migrate:rollback"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +18,9 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "helmet": "^3.22.0"
+    "helmet": "^3.22.0",
+    "knex": "^0.20.13",
+    "pg": "^7.18.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
