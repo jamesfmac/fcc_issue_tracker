@@ -10,10 +10,10 @@ module.exports = {
       max: 10
     },
     migrations: {
-      directory: __dirname + "/src/db/migrations"
+      directory: __dirname + "/src/config/db/migrations"
     },
     seeds: {
-      directory: __dirname + "/src/db/seeds/development"
+      directory: __dirname + "/src/config/db/seeds/development"
     }
   },
 
@@ -25,10 +25,10 @@ module.exports = {
       max: 10
     },
     migrations: {
-      directory: __dirname + "/db/migrations"
+      directory: __dirname + "srx/config/db/migrations"
     },
     seeds: {
-      directory: __dirname + "/src/db/seeds/production"
+      directory: __dirname + "/src/config/db/seeds/production"
     }
   },
 
