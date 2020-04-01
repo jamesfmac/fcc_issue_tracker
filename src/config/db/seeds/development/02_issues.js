@@ -5,7 +5,17 @@ const issues = [
     text: "We need a big document",
     created_by: "Seed",
     assigned_to: null,
-    status_text: "In Progress"
+    status_text: "In Progress",
+    open: false
+  },
+  {
+    project: "alpha",
+    title: "Hire lead tester",
+    text: "Also these",
+    created_by: "Seed",
+    assigned_to: null,
+    status_text: "In Progress",
+    open: true
   },
   {
     project: "beta",
@@ -13,7 +23,8 @@ const issues = [
     text: "Not worth the effort",
     created_by: "Seed",
     assigned_to: null,
-    status_text: "In Progress"
+    status_text: "In Progress",
+    open: false
   }
 ];
 
@@ -29,11 +40,12 @@ exports.seed = function(knex) {
           .first();
         return {
           project_id: project.id,
-          title: issue.title,
-          text: issue.text,
+          issue_title: issue.title,
+          issue_text: issue.text,
           created_by: issue.created_by,
           assigned_to: issue.assigned_to,
-          status_text: issue.status_text
+          status_text: issue.status_text,
+          open: issue.open
         };
       };
 

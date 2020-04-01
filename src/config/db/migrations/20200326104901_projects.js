@@ -1,6 +1,6 @@
-const { onUpdateTrigger } = require("../../../knexfile");
+const { onUpdateTrigger } = require("../../../../knexfile");
 
-exports.up = knex => {
+exports.up = knex =>
   knex.schema
     .createTable("projects", t => {
       t.increments("id").primary();
@@ -8,7 +8,6 @@ exports.up = knex => {
       t.timestamps(false, true);
     })
     .then(() => knex.raw(onUpdateTrigger("projects")));
-};
 
 exports.down = function(knex, Promise) {
   return knex.schema.dropTable("projects");
