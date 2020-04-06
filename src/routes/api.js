@@ -1,42 +1,51 @@
 const { Router } = require("express");
+const { validate } = require("../utils/validator");
 const projectsControler = require("../controllers/projectsController");
 const issuesController = require("../controllers/issuesController");
 
 module.exports = () => {
   let api = Router();
 
-  api.get("/", (req, res) => {
-    return res.json({ blah: "blah" });
+  api.route("/").get(function (req, res) {
+    res.sendFile(process.cwd() + "/src/views/index.html");
   });
 
   api
     .route("/projects")
-
-    .get(async (req, res) => {
-      const projects = await projectsControler.getProjects();
-      res.json(projects);
-    })
-
-    .post(async (req, res) => {
-      const project = await projectsControler.createProject(
-        req.body.project_name
-      );
-      res.json(project);
-    });
+    .get(
+      projectsControler.validationRules("getProjects"),
+      validate,
+      projectsControler.getProjects
+    )
+    .post(
+      projectsControler.validationRules("createProject"),
+      validate,
+      projectsControler.createProject
+    );
 
   api
     .route("/issues/:project")
+    .get(
+      issuesController.validationRules("getIssues"),
+      validate,
+      issuesController.getIssues
+    )
+    .post(
+      issuesController.validationRules("createIssue"),
+      validate,
+      issuesController.createIssue
+    );
 
-    .get(issuesController.validate("getIssues"), issuesController.getIssues)
-
-    .post(async (req, res) => {
-      const project = req.params.project;
-      const issue = await issuesController.createIssue(project, req.body);
-      res.json(issue);
-    })
-
+  api
+    .route("/issues/:project/:issue")
+    .put(
+      issuesController.validationRules("updateIssue"),
+      validate,
+      issuesController.updateIssue
+    )
     .delete(
-      issuesController.validate("deleteIssue"),
+      issuesController.validationRules("deleteIssue"),
+      validate,
       issuesController.deleteIssue
     );
 

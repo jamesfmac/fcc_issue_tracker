@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Issue Tracker API</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <header>
+      <h1>
+        Issue Tracker API Explorer
+      </h1>
+    </header>
+    <hr />
+    <div id="testui">
+      <h3 class="form-heading">Post</h3>
+      <form id="testForm" class="border">
+        <input
+          type="text"
+          name="issue_title"
+          placeholder="*Title"
+          style="width: 100px;"
+          required=""
+        /><br />
+        <textarea
+          type="text"
+          name="issue_text"
+          placeholder="*Text"
+          style="width: 100px;"
+          required=""
+        ></textarea
+        ><br />
+        <input
+          type="text"
+          name="created_by"
+          placeholder="*Created by"
+          style="width: 100px;"
+          required=""
+        /><br />
+        <input
+          type="text"
+          name="assigned_to"
+          placeholder="(opt)Assigned to"
+          style="width: 100px;"
+        /><br />
+        <input
+          type="text"
+          name="status_text"
+          placeholder="(opt)Status text"
+          style="width: 100px;"
+        /><br />
+        <button type="submit">Submit Issue</button>
+      </form>
+
+      <br />
+
+      <h3 class="form-heading">
+        Put
+      </h3>
+      <form id="testForm2" class="border">
+        <input
+          id="testForm2_issue_id"
+          type="text"
+          name="id"
+          placeholder="*id"
+          style="width: 100px;"
+          required=""
+        /><br />
+        <input
+          type="text"
+          name="issue_title"
+          placeholder="(opt)Title"
+          style="width: 100px;"
+        /><br />
+        <textarea
+          type="text"
+          name="issue_text"
+          placeholder="(opt)Text"
+          style="width: 100px;"
+        ></textarea
+        ><br />
+        <input
+          type="text"
+          name="created_by"
+          placeholder="(opt)Created by"
+          style="width: 100px;"
+        /><br />
+        <input
+          type="text"
+          name="assigned_to"
+          placeholder="(opt)Assigned to"
+          style="width: 100px;"
+        /><br />
+        <input
+          type="text"
+          name="status_text"
+          placeholder="(opt)Status text"
+          style="width: 100px;"
+        /><br />
+        <label
+          ><input type="checkbox" name="open" value="false" /> Check to close
+          issue</label
+        ><br />
+        <button type="submit">Submit Issue</button>
+      </form>
+      <br />
+
+      <h3 class="form-heading">Delete</h3>
+      <form id="testForm3" class="border">
+        <input
+          id="testForm3_issue_id"
+          type="text"
+          name="_id"
+          placeholder="_id"
+          style="width: 100px;"
+          required=""
+        /><br />
+        <button type="submit">Delete Issue</button>
+      </form>
+      <code id="jsonResult"></code>
+    </div>
+    <hr style="margin: 50px; margin-top: 200px;" />
+    <!-- Your web-app is https, so your scripts need to be too -->
+    <script
+      src="https://code.jquery.com/jquery-2.2.1.min.js"
+      integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $(function () {
+        $("#testForm").submit((e) => {
+          console.log(e);
+
+          $.ajax({
+            url: "/api/issues/apiexplorer",
+            type: "post",
+            data: $("#testForm").serialize(),
+            success: function (data) {
+              $("#jsonResult").text(JSON.stringify(data));
+            },
+          });
+          e.preventDefault();
+        });
+        $("#testForm2").submit((e) => {
+          const id = $("#testForm2_issue_id").val();
+
+          $.ajax({
+            url: `/api/issues/apiexplorer/${id}`,
+            type: "put",
+            data: $("#testForm2").serialize(),
+            success: function (data) {
+              $("#jsonResult").text(JSON.stringify(data));
+            },
+          });
+          e.preventDefault();
+        });
+        $("#testForm3").submit(function (e) {
+          const id = $("#testForm3_issue_id").val();
+          $.ajax({
+            url: `/api/issues/apiexplorer/${id}`,
+            type: "delete",
+            success: function (data) {
+              $("#jsonResult").text(JSON.stringify(data));
+            },
+          });
+          e.preventDefault();
+        });
+      });
+    </script>
+  </body>
+</html>

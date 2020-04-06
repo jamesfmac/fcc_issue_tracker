@@ -1,14 +1,12 @@
 const express = require("express");
-const cors = require("cors");
 const logger = require("morgan");
 const errorHandler = require("errorhandler");
 const bodyParser = require("body-parser");
-const expressValidator = require("express-validator");
 const helmet = require("helmet");
-const db = require("./config/db/knex");
 
 const { PORT } = require("./config");
 const api = require("./routes/api");
+
 
 const app = express();
 
@@ -19,27 +17,18 @@ app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-app.use(cors({ origin: "*" })); //for FCC testing only
 app.use(helmet());
-
 
 //Routes
 
-app.get("/", (req, res) => {
-  res.send("Hello world");
-});
+app.use("/public", express.static(process.cwd() + "/public"));
 
 app.use("/api", api());
 
 //404 Not Found Middleware
-app.use(function(req, res, next) {
-  res
-    .status(404)
-    .type("text")
-    .send("Not Found");
+app.use(function (req, res, next) {
+  res.status(404).type("text").send("Not Found");
 });
-
 
 // Error Handler
 
@@ -52,8 +41,6 @@ if (process.env.NODE_ENV === "development") {
     res.status(500).send("Server Error");
   });
 }
-
-
 
 // Start Server
 

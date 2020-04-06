@@ -1,13 +1,12 @@
 const knex = require("../config/db/knex");
-const { body, param, query, validationResult } = require("express-validator");
+const { body, param, query, oneOf } = require("express-validator");
 
-exports.validate = method => {
+exports.validationRules = (method) => {
   switch (method) {
     case "deleteIssue": {
       return [
-        body("id", "id must be a valid issue id")
-          .exists()
-          .isInt()
+        param("project", "Must be a valid project name").exists().isString(),
+        param("issue").exists().isInt(),
       ];
     }
     case "getIssues": {
@@ -20,7 +19,39 @@ exports.validate = method => {
         query("open", "Open must be true or false")
           .optional()
           .isBoolean()
-          .toBoolean()
+          .toBoolean(),
+        query("issue_title").optional().isString().escape(),
+        query("issue_text").optional().isString().escape(),
+        query("status_text").optional().isString().escape(),
+        query("assigned_to").optional().isString().escape(),
+        query("created_by").optional().isString().escape(),
+      ];
+    }
+
+    case "updateIssue": {
+      return [
+        param("issue", "Must provide a valid issue ID").isInt(),
+        body()
+          .exists()
+          .custom((value) => Object.keys(value).length > 0)
+          .withMessage("Request body can't be empty"),
+        body("issue_title").optional().isString().escape(),
+        body("issue_text").optional().isString().escape(),
+        body("assigned_to").optional().isString().escape(),
+        body("status_text").optional().isString().escape(),
+        body("open", "Open must be true or false")
+          .optional()
+          .isBoolean()
+          .toBoolean(),
+      ];
+    }
+    case "createIssue": {
+      return [
+        body("issue_title").isString().escape(),
+        body("issue_text").isString().escape(),
+        body("created_by").isString().escape(),
+        body("assigned_to").optional().isString().escape(),
+        body("status_text").optional().isString().escape(),
       ];
     }
   }
@@ -28,33 +59,26 @@ exports.validate = method => {
 
 exports.getIssues = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
+    const filter = req.query;
 
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-      return;
-    }
-
-    const project = req.params.project;
-
-    console.log(project);
+    filter["projects.name"] = req.params.project;
 
     const issues = await knex
       .select(
         "issues.id",
+        "projects.name as project_name",
         "issues.issue_title",
         "issues.issue_text",
         "issues.status_text",
         "issues.open",
         "issues.assigned_to",
-        "projects.name",
         "issues.created_by",
         "issues.created_at",
         "issues.updated_at"
       )
       .from("issues")
       .join("projects", "issues.project_id", "=", "projects.id")
-      .where("projects.name", project);
+      .where(filter);
 
     res.json(issues);
   } catch (err) {
@@ -62,44 +86,49 @@ exports.getIssues = async (req, res, next) => {
   }
 };
 
-exports.createIssue = async (project, issueBody) => {
-  const project_id = await knex
-    .select("id")
-    .from("projects")
-    .where("name", project);
+exports.createIssue = async (req, res, next) => {
+  try {
+    const project_id = await knex
+      .select("id")
+      .from("projects")
+      .where("name", req.params.project);
 
-  console.log(project_id);
+    let issueBody = req.body;
 
-  issueBody.project_id = project_id[0].id;
+    issueBody.project_id = project_id[0].id;
 
-  const issue = await knex("issues").insert(issueBody, [
-    "id",
-    "issue_title",
-    "issue_text",
-    "status_text",
-    "open",
-    "assigned_to",
-    "created_by",
-    "created_at",
-    "updated_at"
-  ]);
-  return issue;
+    const issue = await knex("issues").insert(issueBody, [
+      "id",
+      "issue_title",
+      "issue_text",
+      "status_text",
+      "open",
+      "assigned_to",
+      "created_by",
+      "created_at",
+      "updated_at",
+    ]);
+    res.json(issue);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.updateIssue = async (req, res, next) => {
+  try {
+    const result = await knex("issues")
+      .where("id", req.params.issue)
+      .update(req.body);
+
+    res.json(result);
+  } catch (err) {
+    return next(err);
+  }
 };
 
 exports.deleteIssue = async (req, res, next) => {
   try {
-    const errors = validationResult(req); // Finds the validation errors in this request and wraps them in an object with handy functions
-
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-      return;
-    }
-
-    const { id } = req.body;
-
-    const result = await knex("issues")
-      .where("id", id)
-      .del();
+    const result = await knex("issues").where("id", req.params.issue).del();
 
     res.json(result);
   } catch (err) {
