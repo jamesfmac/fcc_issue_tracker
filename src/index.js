@@ -8,6 +8,8 @@ const { PORT } = require("./config");
 const api = require("./routes/api");
 
 
+
+
 const app = express();
 
 //Express configuration
@@ -21,7 +23,7 @@ app.use(helmet());
 
 //Routes
 
-app.use("/public", express.static(process.cwd() + "/public"));
+app.use(express.static(__dirname + '/public'));
 
 app.use("/api", api());
 

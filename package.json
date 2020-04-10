@@ -5,7 +5,7 @@
   "repository": "asdf",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -r dotenv/config src/index.js",
+    "start": "nodemon -e js,html -r dotenv/config src/index.js",
     "test": "NODE_ENV=test ./node_modules/mocha/bin/mocha src/tests -u tdd --exit",
     "coverage": "nyc npm run test",
     "migration": "knex migrate:latest",
