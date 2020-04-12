@@ -1,4 +1,6 @@
 const knex = require("../config/db/knex");
+
+const issue = require("../models/issues");
 const { body, param, query, oneOf } = require("express-validator");
 
 exports.validationRules = (method) => {
@@ -63,24 +65,7 @@ exports.getIssues = async (req, res, next) => {
 
     filter["projects.name"] = req.params.project;
 
-    const issues = await knex
-      .select(
-        "issues.id",
-        "projects.name as project_name",
-        "issues.issue_title",
-        "issues.issue_text",
-        "issues.status_text",
-        "issues.open",
-        "issues.assigned_to",
-        "issues.created_by",
-        "issues.created_at",
-        "issues.updated_at"
-      )
-      .from("issues")
-      .join("projects", "issues.project_id", "=", "projects.id")
-      .where(filter);
-
-    res.json(issues);
+    res.json(await issue.get(filter));
   } catch (err) {
     return next(err);
   }
@@ -88,27 +73,7 @@ exports.getIssues = async (req, res, next) => {
 
 exports.createIssue = async (req, res, next) => {
   try {
-    const project_id = await knex
-      .select("id")
-      .from("projects")
-      .where("name", req.params.project);
-
-    let issueBody = req.body;
-
-    issueBody.project_id = project_id[0].id;
-
-    const issue = await knex("issues").insert(issueBody, [
-      "id",
-      "issue_title",
-      "issue_text",
-      "status_text",
-      "open",
-      "assigned_to",
-      "created_by",
-      "created_at",
-      "updated_at",
-    ]);
-    res.json(issue);
+    res.json(await issue.create(req.params.project, req.body));
   } catch (err) {
     return next(err);
   }
@@ -116,11 +81,7 @@ exports.createIssue = async (req, res, next) => {
 
 exports.updateIssue = async (req, res, next) => {
   try {
-    const result = await knex("issues")
-      .where("id", req.params.issue)
-      .update(req.body);
-
-    res.json(result);
+    res.json(await issue.update(req.params.issue, req.body));
   } catch (err) {
     return next(err);
   }
@@ -128,9 +89,7 @@ exports.updateIssue = async (req, res, next) => {
 
 exports.deleteIssue = async (req, res, next) => {
   try {
-    const result = await knex("issues").where("id", req.params.issue).del();
-
-    res.json(result);
+    res.json(await issue.delete(req.params.issue));
   } catch (err) {
     return next(err);
   }

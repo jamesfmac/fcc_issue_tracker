@@ -1,5 +1,7 @@
 const knex = require("../config/db/knex");
 
+const project = require("../models/projects");
+
 const { body, query } = require("express-validator");
 
 exports.validationRules = (method) => {
@@ -21,14 +23,9 @@ exports.validationRules = (method) => {
 };
 
 exports.getProjects = async (req, res) => {
-  const projects = await knex("projects");
-  res.json(projects);
+  res.json(await project.get());
 };
 
 exports.createProject = async (req, res) => {
-  const project = await knex("projects").insert(
-    { name: req.body.project_name },
-    ["id", "name", "created_at", "updated_at"]
-  );
-  res.json(project);
+  res.json(await project.create(req.body.project_name));
 };
