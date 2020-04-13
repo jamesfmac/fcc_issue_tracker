@@ -75,6 +75,7 @@ exports.createIssue = async (req, res, next) => {
   try {
     res.json(await issue.create(req.params.project, req.body));
   } catch (err) {
+    console.log('err??')
     return next(err);
   }
 };

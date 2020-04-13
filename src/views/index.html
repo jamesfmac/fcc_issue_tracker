@@ -39,7 +39,7 @@
               <div class="panel-heading">Request</div>
               <form
                 id="issuePostForm"
-                action="issues/apiexplorer"
+                action="api/issues/apiexplorer"
                 data-method="POST"
               >
                 <div class="form-group">
@@ -151,7 +151,6 @@
                   type="submit"
                   @click="
                 $event.preventDefault()
-                console.log('blah')
                 callAPI($event,'jsonResultPost',true )"
                 >
                   Execute
@@ -185,7 +184,7 @@
               <form
                 id="issuePutForm"
                 class="border"
-                action="issues/apiexplorer/"
+                action="api/issues/apiexplorer/"
                 data-method="PUT"
               >
                 <div class="form-group">
@@ -344,7 +343,7 @@
           <div class="panel shadow" x-show="selected == 2">
             <div class="api-form">
               <div class="panel-heading">Request</div>
-              <form data-method="GET" action="issues/">
+              <form data-method="GET" action="api/issues/">
                 <div class="form-group">
                   <div class="field-group">
                     <div class="field-name">
@@ -407,7 +406,7 @@
                 id="deleteForm"
                 class="border"
                 data-method="DELETE"
-                action="issues/apiexplorer/"
+                action="api/issues/apiexplorer/"
               >
                 <div class="form-group">
                   <div class="field-group">
@@ -470,19 +469,37 @@
         ? new URLSearchParams([...new FormData(form)])
         : null;
 
-      console.log(`${method}: ${action}${issue_id}`);
-      console.log("isPath: ", form.elements[0].getAttribute("data-ispath"));
+      try {
+        const response = await fetch(`${action}${issue_id}`, {
+          method: method,
+          body: body,
+        });
 
-      console.log(body);
-      console.log(display);
+        console.log(response.status);
+        if (response.status !== 200) {
+          let errorText = "";
 
-      const response = await fetch(`${action}${issue_id}`, {
-        method: method,
-        body: body,
-      });
-      const data = await response.json();
-      document.getElementById(display).innerText = JSON.stringify(data, "", 2);
-      console.log(data);
+          switch (response.status) {
+            case 404:
+              errorText = "Resource not found. [404]";
+              break;
+            default:
+              errorText = "Sorry unknown server error. [500]";
+          }
+
+          document.getElementById(display).innerText = errorText;
+          return;
+        }
+        const data = await response.json();
+        document.getElementById(display).innerText = JSON.stringify(
+          data,
+          "",
+          2
+        );
+        console.log(data);
+      } catch (error) {
+        console.log("error", error);
+      }
     };
   </script>
 </html>
